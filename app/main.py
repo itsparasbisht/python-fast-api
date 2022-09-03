@@ -7,24 +7,15 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
 from dotenv import dotenv_values
+from . import models
+from .database import engine, get_db
 
 config = dotenv_values(".env")
 dbPassword = config["DB_PASSWORD"]
 
-app = FastAPI()
+models.Base.metadata.create_all(bind=engine)
 
-myPosts = [
-    {
-        "title": "post 1",
-        "content": "this is an example",
-        "id": 1
-    },
-    {
-        "title": "what is up",
-        "content": "hello hello hello",
-        "id": 2
-    }
-]
+app = FastAPI()
 
 # pydantic schema for Post
 class Post(BaseModel):
@@ -43,16 +34,6 @@ while True:
         print("Database connection failed!")
         print("Error: ", error)
         time.sleep(2)
-
-def find_post(id):
-    for post in myPosts:
-        if post["id"] == id:
-            return post
-
-def find_index_post(id):
-    for i, post in enumerate(myPosts):
-        if post["id"] == id:
-            return i
 
 # routes
 @app.get("/")
