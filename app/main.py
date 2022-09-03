@@ -6,6 +6,10 @@ from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
+dbPassword = config["DB_PASSWORD"]
 
 app = FastAPI()
 
@@ -30,7 +34,7 @@ class Post(BaseModel):
 
 while True:
     try:
-        conn = psycopg2.connect(host='localhost', database='fastapi', user='postgres', password='password', cursor_factory=RealDictCursor)
+        conn = psycopg2.connect(host='localhost', database='fastapi', user='postgres', password=dbPassword, cursor_factory=RealDictCursor)
 
         cursor = conn.cursor()
         print("Database connection made!")
