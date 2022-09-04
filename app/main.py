@@ -1,19 +1,14 @@
 import imp
 from typing import Optional
-from fastapi import FastAPI, status, HTTPException, Response
+from fastapi import FastAPI, status, HTTPException, Response, Depends
 from pydantic import BaseModel
-from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
 from dotenv import dotenv_values
-from . import models
-from .database import engine, get_db
 
 config = dotenv_values(".env")
 dbPassword = config["DB_PASSWORD"]
-
-models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
