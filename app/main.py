@@ -1,104 +1,21 @@
-from typing import List, Optional
-from fastapi import FastAPI, status, HTTPException, Response
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import time
-from . import schemas, utils
-from dotenv import dotenv_values
-
-config = dotenv_values(".env")
-dbPassword = config["DB_PASSWORD"]
+from fastapi import FastAPI
+from .db import connect
+from .routers import post, user
 
 app = FastAPI()
+db_res = connect.db_connect()
 
-while True:
-    try:
-        conn = psycopg2.connect(host='localhost', database='fastapi', user='postgres', password=dbPassword, cursor_factory=RealDictCursor)
+if not db_res:
+    print("Database connection failed")
+else:
+    cursor, conn = list(db_res)
 
-        cursor = conn.cursor()
-        print("Database connection made!")
-        break
-    except Exception as error:
-        print("Database connection failed!")
-        print("Error: ", error)
-        time.sleep(2)
+def db_get():
+    return cursor, conn
 
-# routes
+app.include_router(post.router)
+app.include_router(user.router)
+
 @app.get("/")
-async def root():
-    return {"message": "Hello World!!"}
-
-@app.get("/posts", response_model=List[schemas.Post])
-def get_posts():
-    cursor.execute(""" SELECT * FROM posts """)
-    posts = cursor.fetchall()
-    return posts
-
-@app.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
-def set_post(post: schemas.PostCreate):
-
-    # %s to sanitize the data
-    cursor.execute(""" INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """, (post.title, post.content, post.published))
-
-    new_post = cursor.fetchone()
-    conn.commit()
-
-    return new_post
-
-@app.get('/posts/{id}', response_model=schemas.Post)
-def get_post(id: int):
-
-    cursor.execute("SELECT * FROM posts WHERE id = %s", (str(id)))
-    posts = cursor.fetchone()
-
-    if not posts:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {id} not found")
-    return posts
-
-@app.delete('/posts/{id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int):
-
-    cursor.execute("DELETE FROM posts WHERE id = %s RETURNING *", (str(id)))
-    deleted_post = cursor.fetchone()
-    conn.commit()
-
-    if deleted_post == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {id} does not exist")
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-@app.put('/posts/{id}', response_model=schemas.Post)
-def update_post(id: int, post: schemas.PostCreate):
-
-    cursor.execute("UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *", (post.title, post.content, post.published, str(id)))
-    updated_post = cursor.fetchone()
-    conn.commit()
-
-    if updated_post == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {id} does not exist")
-
-    return updated_post
-
-@app.post('/user', status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
-def create_user(user: schemas.UserCreate):
-
-    # hash the password
-    hashed_password = utils.hash(user.password)
-    user.password = hashed_password
-
-    cursor.execute("""INSERT INTO users (email, password) VALUES (%s, %s) RETURNING *""", (user.email, user.password))
-    new_user = cursor.fetchone()
-    conn.commit()
-
-    return new_user
-
-@app.get('/user/{id}', status_code=status.HTTP_200_OK, response_model=schemas.UserOut)
-def get_user(id: int):
-
-    cursor.execute(f" SELECT * FROM users WHERE id = {id}")
-    user = cursor.fetchone()
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user with id {id} does not exist")
-
-    return user
+def root():
+    return {"message": "Hello World!"}
