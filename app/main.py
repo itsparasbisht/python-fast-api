@@ -3,7 +3,7 @@ from fastapi import FastAPI, status, HTTPException, Response
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
-from . import schemas
+from . import schemas, utils
 from dotenv import dotenv_values
 
 config = dotenv_values(".env")
@@ -81,6 +81,11 @@ def update_post(id: int, post: schemas.PostCreate):
 
 @app.post('/user', status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
 def create_user(user: schemas.UserCreate):
+
+    # hash the password
+    hashed_password = utils.hash(user.password)
+    user.password = hashed_password
+
     cursor.execute("""INSERT INTO users (email, password) VALUES (%s, %s) RETURNING *""", (user.email, user.password))
     new_user = cursor.fetchone()
     conn.commit()
