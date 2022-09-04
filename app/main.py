@@ -91,3 +91,14 @@ def create_user(user: schemas.UserCreate):
     conn.commit()
 
     return new_user
+
+@app.get('/user/{id}', status_code=status.HTTP_200_OK, response_model=schemas.UserOut)
+def get_user(id: int):
+
+    cursor.execute(f" SELECT * FROM users WHERE id = {id}")
+    user = cursor.fetchone()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user with id {id} does not exist")
+
+    return user
