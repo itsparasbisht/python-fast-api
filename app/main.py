@@ -78,3 +78,11 @@ def update_post(id: int, post: schemas.PostCreate):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {id} does not exist")
 
     return updated_post
+
+@app.post('/user', status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+def create_user(user: schemas.UserCreate):
+    cursor.execute("""INSERT INTO users (email, password) VALUES (%s, %s) RETURNING *""", (user.email, user.password))
+    new_user = cursor.fetchone()
+    conn.commit()
+
+    return new_user
