@@ -25,7 +25,7 @@ def create_user(user: schemas.UserCreate):
 @router.get('/{id}', status_code=status.HTTP_200_OK, response_model=schemas.UserOut)
 def get_user(id: int):
 
-    cursor.execute(f" SELECT * FROM users WHERE id = {id}")
+    cursor.execute(" SELECT * FROM users WHERE id = %s", (str(id),))
     user = cursor.fetchone()
 
     if not user:
