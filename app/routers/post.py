@@ -1,10 +1,9 @@
 from fastapi import status, HTTPException, Response, APIRouter
 from .. import schemas
 from typing import List
-from ..main import db_get
+from ..db.connect import db_connect
 
-cursor, conn = db_get()
-
+conn, cursor = db_connect()
 router = APIRouter()
 
 @router.get("/posts", response_model=List[schemas.Post])

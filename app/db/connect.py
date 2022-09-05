@@ -10,7 +10,7 @@ def db_connect():
         conn = psycopg2.connect(host='localhost', database='fastapi', user='postgres', password=dbPassword, cursor_factory=RealDictCursor)
         cursor = conn.cursor()
         
-        return {conn, cursor}
+        return (conn, cursor)
     except Exception as error:
         print(f"DB Error: {error}")
-        return False
+        exit()

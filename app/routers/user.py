@@ -1,8 +1,9 @@
-from ..main import db_get
 from fastapi import status, HTTPException, APIRouter
 from .. import schemas, utils
+from ..db.connect import db_connect
 
-cursor, conn = db_get()
+conn, cursor = db_connect()
+router = APIRouter()
 
 router = APIRouter()
 
