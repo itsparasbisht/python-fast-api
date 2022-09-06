@@ -1,4 +1,5 @@
-from fastapi import status, HTTPException, APIRouter
+from fastapi import status, Depends, HTTPException, APIRouter
+from fastapi.security import OAuth2PasswordRequestForm
 
 from ..db.connect import db_connect
 from .. import schemas, utils, oauth2
@@ -9,10 +10,10 @@ router = APIRouter(
     tags = ["Authentication"]
 )
 
-@router.post('/login')
-def login(user_creds: schemas.UserLogin):
+@router.post('/login', response_model=schemas.Token)
+def login(user_creds: OAuth2PasswordRequestForm = Depends()):
 
-    cursor.execute("""SELECT * FROM users WHERE email = %s""", (user_creds.email,))
+    cursor.execute("""SELECT * FROM users WHERE email = %s""", (user_creds.username,))
     user = cursor.fetchone()
     conn.commit()
 
