@@ -1,6 +1,7 @@
 from fastapi import status, HTTPException, APIRouter
+
 from ..db.connect import db_connect
-from .. import schemas, utils
+from .. import schemas, utils, oauth2
 
 conn, cursor = db_connect()
 
@@ -22,7 +23,8 @@ def login(user_creds: schemas.UserLogin):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid Credentials")
 
     # create token for valid user
-    return {"token": "opopopop"}
+    access_token = oauth2.create_access_token(data={"user_id": user["id"]})
+    return {"access_token": access_token, "token_type": "bearer"}
 
     
     
