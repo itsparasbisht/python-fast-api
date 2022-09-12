@@ -5,6 +5,9 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from . import schemas
+from .db.connect import db_connect
+
+conn, cursor = db_connect()
 
 config = dotenv_values(".env")
 SECRET_KEY = config["SECRET_KEY"]
@@ -42,4 +45,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    return verify_access_token(token, credentials_exception)
+    token = verify_access_token(token, credentials_exception)
+    cursor.execute(""" SELECT * FROM users WHERE id = %s """, (token.id,))
+    user = cursor.fetchone()
+    conn.commit()
+
+    return user
