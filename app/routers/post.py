@@ -51,6 +51,9 @@ def delete_post(id: int, current_user = Depends(oauth2.get_current_user)):
     if deleted_post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {id} does not exist")
 
+    if deleted_post["user_id"] != current_user["id"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Not authorized to perform requested action")
+
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.put('/{id}', response_model=schemas.Post)
@@ -62,5 +65,8 @@ def update_post(id: int, post: schemas.PostCreate, current_user = Depends(oauth2
 
     if updated_post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {id} does not exist")
+
+    if updated_post["user_id"] != current_user["id"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Not authorized to perform requested action")
 
     return updated_post
