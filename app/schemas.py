@@ -15,6 +15,7 @@ class PostCreate(PostBase):
 class Post(PostBase):
     id: int
     created_at: datetime
+    user_id: int
 
 class UserCreate(BaseModel):
     email: EmailStr

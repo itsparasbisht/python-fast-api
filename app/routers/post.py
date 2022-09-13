@@ -21,9 +21,10 @@ def get_posts(current_user = Depends(oauth2.get_current_user)):
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def set_post(post: schemas.PostCreate, current_user = Depends(oauth2.get_current_user)):
+    user_id = current_user["id"]
 
     # %s to sanitize the data
-    cursor.execute(""" INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """, (post.title, post.content, post.published))
+    cursor.execute(""" INSERT INTO posts (title, content, published, user_id) VALUES (%s, %s, %s, %s) RETURNING * """, (post.title, post.content, post.published, user_id))
 
     new_post = cursor.fetchone()
     conn.commit()
@@ -33,7 +34,7 @@ def set_post(post: schemas.PostCreate, current_user = Depends(oauth2.get_current
 @router.get('/{id}', response_model=schemas.Post)
 def get_post(id: int, current_user = Depends(oauth2.get_current_user)):
 
-    cursor.execute("SELECT * FROM posts WHERE id = %s", (str(id)))
+    cursor.execute("SELECT * FROM posts WHERE id = %s", (str(id),))
     posts = cursor.fetchone()
 
     if not posts:
