@@ -3,20 +3,6 @@ from lib2to3.pytree import Base
 from typing import Optional
 from pydantic import BaseModel, EmailStr
 
-class PostBase(BaseModel):
-    title: str
-    content: str
-    published: bool = True
-
-class PostCreate(PostBase):
-    pass
-
-# schema for response
-class Post(PostBase):
-    id: int
-    created_at: datetime
-    user_id: int
-
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
@@ -36,3 +22,17 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[str] = None
+
+class PostBase(BaseModel):
+    title: str
+    content: str
+    published: bool = True
+
+class PostCreate(PostBase):
+    pass
+
+class Post(PostBase):
+    id: int
+    created_at: datetime
+    user_id: int
+    # email: str

@@ -11,12 +11,11 @@ router = APIRouter(
     tags=["Posts"]
 )
 
-@router.get("/", response_model=List[schemas.Post])
+@router.get("/")
 def get_posts(current_user = Depends(oauth2.get_current_user)):
-    # print(dict(current_user))
-
-    cursor.execute(""" SELECT * FROM posts """)
+    cursor.execute(""" SELECT posts.id, posts.title, posts.content, posts.published, posts.content, posts.created_at, posts.user_id, users.email FROM posts LEFT JOIN users ON posts.user_id = users.id """)
     posts = cursor.fetchall()
+
     return posts
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
@@ -31,15 +30,15 @@ def set_post(post: schemas.PostCreate, current_user = Depends(oauth2.get_current
 
     return new_post
 
-@router.get('/{id}', response_model=schemas.Post)
+@router.get('/{id}')
 def get_post(id: int, current_user = Depends(oauth2.get_current_user)):
 
-    cursor.execute("SELECT * FROM posts WHERE id = %s", (str(id),))
-    posts = cursor.fetchone()
+    cursor.execute("SELECT posts.id, posts.title, posts.content, posts.published, posts.content, posts.created_at, posts.user_id, users.email FROM posts WHERE user_id = %s LEFT JOIN users ON posts.user_id = users.id ", (str(id)))
+    post = cursor.fetchone()
 
-    if not posts:
+    if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {id} not found")
-    return posts
+    return post
 
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int, current_user = Depends(oauth2.get_current_user)):
