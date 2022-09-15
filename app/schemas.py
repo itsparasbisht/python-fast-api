@@ -35,4 +35,4 @@ class Post(PostBase):
     id: int
     created_at: datetime
     user_id: int
-    # email: str
+    email: str
