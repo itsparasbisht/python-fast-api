@@ -12,13 +12,13 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=List[schemas.Post])
-def get_posts(current_user = Depends(oauth2.get_current_user)):
-    cursor.execute(""" SELECT posts.id, posts.title, posts.content, posts.published, posts.content, posts.created_at, posts.user_id, users.email FROM posts LEFT JOIN users ON posts.user_id = users.id """)
+def get_posts(current_user = Depends(oauth2.get_current_user), limit: int = 10):
+    cursor.execute(""" SELECT posts.id, posts.title, posts.content, posts.published, posts.content, posts.created_at, posts.user_id, users.email FROM posts LEFT JOIN users ON posts.user_id = users.id LIMIT(%s) """, (str(limit),))
     posts = cursor.fetchall()
 
     return posts
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def set_post(post: schemas.PostCreate, current_user = Depends(oauth2.get_current_user)):
     user_id = current_user["id"]
 
