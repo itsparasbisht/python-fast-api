@@ -14,6 +14,11 @@ router = APIRouter(
 def vote(vote: schemas.Vote, current_user = Depends(oauth2.get_current_user)):
     user_id = str(current_user["id"])
 
+    cursor.execute("SELECT * FROM posts WHERE id = %s", (str(vote.post_id),))
+    post = cursor.fetchone()
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {vote.post_id} does not exist")
+
     cursor.execute("SELECT * FROM votes WHERE post_id = %s AND user_id = %s", (str(vote.post_id), user_id))
 
     found_vote = cursor.fetchone()
