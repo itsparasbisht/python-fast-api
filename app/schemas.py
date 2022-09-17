@@ -1,7 +1,7 @@
 from datetime import datetime
-from lib2to3.pytree import Base
 from typing import Optional
 from pydantic import BaseModel, EmailStr
+from pydantic.types import conint
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -36,3 +36,7 @@ class Post(PostBase):
     created_at: datetime
     user_id: int
     email: str
+
+class Vote(BaseModel):
+    post_id: int
+    dir: conint(le=1)
