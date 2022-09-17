@@ -26,9 +26,7 @@ def get_posts(current_user = Depends(oauth2.get_current_user), limit: int = 10, 
     HAVING posts.title ILIKE %s limit(%s) """,
     (key, str(limit)))
 
-
     posts = cursor.fetchall()
-
     return posts
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -43,10 +41,19 @@ def set_post(post: schemas.PostCreate, current_user = Depends(oauth2.get_current
 
     return new_post
 
-@router.get('/{id}', response_model=schemas.Post)
+@router.get('/{id}')
 def get_post(id: int, current_user = Depends(oauth2.get_current_user)):
 
-    cursor.execute(" SELECT posts.id, posts.title, posts.content, posts.published, posts.created_at, posts.user_id, users.email FROM posts JOIN users ON posts.id = %s AND posts.user_id = users.id; ", (str(id),))
+    # cursor.execute(" SELECT posts.id, posts.title, posts.content, posts.published, posts.created_at, posts.user_id, users.email FROM posts JOIN users ON posts.id = %s AND posts.user_id = users.id; ", (str(id),))
+
+    cursor.execute(""" SELECT POSTS.*, users.email, count(votes.user_id) as likes FROM posts
+    JOIN users ON posts.id = %s AND posts.user_id = users.id
+    left join votes on
+    posts.id = votes.post_id
+    group by posts.id, users.email; """,
+    (str(id),))
+
+
     post = cursor.fetchone()
 
     if not post:
