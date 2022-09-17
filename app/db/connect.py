@@ -3,6 +3,10 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 config = dotenv_values(".env")
+
+host = config["HOST"]
+database = config["DATABASE"]
+user = config["USER"]
 dbPassword = config["DB_PASSWORD"]
 
 def db_connect():
