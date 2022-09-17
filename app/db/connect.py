@@ -1,14 +1,17 @@
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import os
 
-config = dotenv_values(".env")
+load_dotenv()
 
-host = config["HOST"]
-database = config["DATABASE"]
-user = config["USER"]
-dbPassword = config["DB_PASSWORD"]
-port = config["DB_PORT"]
+host = os.environ["HOST"]
+database = os.environ["DATABASE"]
+user = os.environ["USER"]
+dbPassword = os.environ["DB_PASSWORD"]
+port = os.environ["DB_PORT"]
+
+print(host, database, user, dbPassword, port)
 
 def db_connect():
     try:
