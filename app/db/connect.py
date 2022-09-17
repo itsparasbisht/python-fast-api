@@ -8,10 +8,11 @@ host = config["HOST"]
 database = config["DATABASE"]
 user = config["USER"]
 dbPassword = config["DB_PASSWORD"]
+port = config["DB_PORT"]
 
 def db_connect():
     try:
-        conn = psycopg2.connect(host='localhost', database='fastapi', user='postgres', password=dbPassword, cursor_factory=RealDictCursor)
+        conn = psycopg2.connect(host='localhost', port=port, database='fastapi', user='postgres', password=dbPassword, cursor_factory=RealDictCursor)
         cursor = conn.cursor()
         
         return (conn, cursor)
