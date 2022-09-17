@@ -11,12 +11,22 @@ router = APIRouter(
     tags=["Posts"]
 )
 
-@router.get("/", response_model=List[schemas.Post])
+@router.get("/")
 def get_posts(current_user = Depends(oauth2.get_current_user), limit: int = 10, search: Optional[str] = ""):
 
     key="%"+search+"%"
 
-    cursor.execute(""" SELECT posts.id, posts.title, posts.content, posts.published, posts.content, posts.created_at, posts.user_id, users.email FROM posts LEFT JOIN users ON posts.user_id = users.id WHERE posts.title ILIKE %s LIMIT(%s) """, (key, str(limit)))
+    # cursor.execute(""" SELECT posts.id, posts.title, posts.content, posts.published, posts.content, posts.created_at, posts.user_id, users.email FROM posts LEFT JOIN users ON posts.user_id = users.id WHERE posts.title ILIKE %s LIMIT(%s) """, (key, str(limit)))
+
+    cursor.execute(""" select posts.*, users.email, count(votes.user_id) as likes from posts left join votes on
+    posts.id = votes.post_id 
+    left join users on 
+    posts.user_id = users.id
+    group by posts.id, users.email
+    HAVING posts.title ILIKE %s limit(%s) """,
+    (key, str(limit)))
+
+
     posts = cursor.fetchall()
 
     return posts
