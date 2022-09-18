@@ -1,18 +1,20 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from . import schemas
 from .db.connect import db_connect
+import os
+
+load_dotenv()
 
 conn, cursor = db_connect()
 
-config = dotenv_values(".env")
-SECRET_KEY = config["SECRET_KEY"]
-ALGORITHM = config["ALGORITHM"]
-ACCESS_TOKEN_EXPIRE_MINUTES  = int(config["ACCESS_TOKEN_EXPIRE_MINUTES"])
+SECRET_KEY = os.environ.get("SECRET_KEY")
+ALGORITHM = os.environ.get("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES  = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
