@@ -5,13 +5,11 @@ import os
 
 load_dotenv()
 
-host = os.environ["HOST"]
-database = os.environ["DATABASE"]
-user = os.environ["USER"]
-dbPassword = os.environ["DB_PASSWORD"]
-port = os.environ["DB_PORT"]
-
-print(host, database, user, dbPassword, port)
+host = os.environ.get("HOST")
+database = os.environ.get("DATABASE")
+user = os.environ.get("USER")
+dbPassword = os.environ.get("DB_PASSWORD")
+port = os.environ.get("DB_PORT")
 
 def db_connect():
     try:
