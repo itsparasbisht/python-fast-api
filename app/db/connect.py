@@ -13,7 +13,7 @@ port = os.environ.get("DB_PORT")
 
 def db_connect():
     try:
-        conn = psycopg2.connect(host='localhost', port=port, database='fastapi', user='postgres', password=dbPassword, cursor_factory=RealDictCursor)
+        conn = psycopg2.connect(host=host, port=port, database=database, user=user, password=dbPassword, cursor_factory=RealDictCursor)
         cursor = conn.cursor()
         
         return (conn, cursor)
